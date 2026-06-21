@@ -15,6 +15,6 @@ spec:
     spec:
       containers:
       - name: self-healing-system-container
-        image: self-healing-system:latest
+        image: avikasaxenapvt/self-healing-system:latest
         ports:
         - containerPort: 3000
