@@ -2,19 +2,19 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: self-healing-deployment
-  namespace: self-healing-system
+  namespace: self-healing-system-namespace
 spec:
   replicas: 3
   selector:
     matchLabels:
-      app: self-healing-app
+      app: self-healing-system
   template:
     metadata:
       labels:
-        app: self-healing-app
+        app: self-healing-system
     spec:
       containers:
-      - name: self-healing-container
-        image: self-healing-image:latest
+      - name: self-healing-system-container
+        image: self-healing-system:latest
         ports:
         - containerPort: 3000

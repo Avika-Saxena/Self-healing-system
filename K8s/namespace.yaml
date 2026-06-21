@@ -1,4 +1,4 @@
 apiVersion: v1
 kind: Namespace
 metadata:
-  name: self-healing-system
+  name: self-healing-system-namespace
