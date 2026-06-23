@@ -1,0 +1,33 @@
+name: self-healing-system
+
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: self-healing-system-backend
+    ports:
+      - "3000:3000"
+    network_mode: self-healing-system-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: self-healing-system-frontend
+    ports:
+      - "5000:5000"
+    network_mode: self-healing-system-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+networks:
+  self-healing-system-network:
+    driver: bridge

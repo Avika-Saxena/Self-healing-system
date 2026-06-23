@@ -1,0 +1,20 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: self-healing-deployment
+  namespace: self-healing-system-namespace
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: self-healing-system-app
+  template:
+    metadata:
+      labels:
+        app: self-healing-system-app
+    spec:
+      containers:
+      - name: self-healing-system-frontend
+        image: avikasaxenapvt/self-healing-system-frontend:latest
+        ports:
+        - containerPort: 5000

@@ -14,7 +14,7 @@ spec:
         app: self-healing-system
     spec:
       containers:
-      - name: self-healing-system-container
-        image: avikasaxenapvt/self-healing-system:latest
+      - name: self-healing-system-backend
+        image: avikasaxenapvt/self-healing-system-backend:latest
         ports:
         - containerPort: 3000

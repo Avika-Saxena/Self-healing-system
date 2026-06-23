@@ -6,5 +6,9 @@ app.get('/', (req, res) => {
   res.send('Hello World!');
 });
 
+app.get('/health', (req, res) => {
+  res.send('Health check passed!');
+});
+
 app.listen(port, () => {  console.log(`Example app listening at http://localhost:${port}`);
 });

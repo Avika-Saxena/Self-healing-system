@@ -5,7 +5,7 @@ metadata:
   namespace: self-healing-system-namespace
 spec:
   selector:
-    app: self-healing-system
+    app: self-healing-system-backend
   ports:
     - protocol: TCP
       port: 80
