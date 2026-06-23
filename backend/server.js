@@ -7,7 +7,7 @@ app.get('/', (req, res) => {
 });
 
 app.get('/health', (req, res) => {
-  res.send('Health check passed! updated');
+  res.send('Health check passed!');
 });
 
 app.listen(port, () => {  console.log(`Example app listening at http://localhost:${port}`);
