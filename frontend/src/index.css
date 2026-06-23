@@ -1,0 +1,141 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: 'Inter', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+
+  --color-dark-900: #0a0e17;
+  --color-dark-800: #0d1220;
+  --color-dark-700: #111827;
+  --color-dark-600: #151d2e;
+  --color-dark-500: #1a2332;
+  --color-dark-400: #1e293b;
+  --color-dark-300: #2a3548;
+  --color-dark-200: #374151;
+
+  --color-cyan-400: #22d3ee;
+  --color-cyan-500: #06b6d4;
+  --color-cyan-600: #0891b2;
+  --color-cyan-700: #0e7490;
+  --color-cyan-900: #0c2d3f;
+
+  --color-emerald-400: #34d399;
+  --color-emerald-500: #10b981;
+  --color-emerald-600: #059669;
+  --color-emerald-900: #0d3526;
+
+  --color-amber-400: #fbbf24;
+  --color-amber-500: #f59e0b;
+  --color-amber-900: #3d2e0a;
+
+  --color-red-400: #f87171;
+  --color-red-500: #ef4444;
+  --color-red-900: #3d1414;
+
+  --color-purple-400: #c084fc;
+  --color-purple-500: #a855f7;
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #1e293b #0a0e17;
+}
+
+body {
+  background-color: #0a0e17;
+  color: #e2e8f0;
+  font-family: 'Inter', system-ui, sans-serif;
+}
+
+/* Ant Design dark theme overrides */
+.ant-card {
+  background: transparent !important;
+  border-color: rgba(34, 211, 238, 0.1) !important;
+}
+
+.ant-tag {
+  border-radius: 9999px !important;
+}
+
+.ant-progress-inner {
+  background-color: #1a2332 !important;
+}
+
+.ant-btn-default {
+  border-color: #2a3548 !important;
+  color: #94a3b8 !important;
+  background: #1a2332 !important;
+}
+
+.ant-btn-default:hover {
+  border-color: rgba(239, 68, 68, 0.4) !important;
+  color: #f87171 !important;
+  background: #1e293b !important;
+}
+
+.ant-input-number {
+  background: #0d1220 !important;
+  border-color: #2a3548 !important;
+  color: #fff !important;
+}
+
+.ant-input-number:hover,
+.ant-input-number-focused {
+  border-color: #06b6d4 !important;
+}
+
+.ant-input-number .ant-input-number-handler-wrap {
+  background: #151d2e !important;
+  border-color: #2a3548 !important;
+}
+
+.ant-input-number .ant-input-number-handler {
+  border-color: #2a3548 !important;
+  color: #94a3b8 !important;
+}
+
+.ant-tooltip .ant-tooltip-inner {
+  background: #0d1220 !important;
+  border: 1px solid #2a3548 !important;
+}
+
+.ant-badge-status-dot {
+  width: 8px !important;
+  height: 8px !important;
+}
+
+@keyframes pulse-glow {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+@keyframes slide-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-pulse-glow {
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+
+.animate-slide-in {
+  animation: slide-in 0.3s ease-out;
+}
+
+.glass-card {
+  background: linear-gradient(135deg, rgba(17, 24, 39, 0.8), rgba(13, 18, 32, 0.9));
+  border: 1px solid rgba(34, 211, 238, 0.1);
+  backdrop-filter: blur(12px);
+}
+
+.glass-card:hover {
+  border-color: rgba(34, 211, 238, 0.2);
+}
+
+.glow-border {
+  box-shadow: 0 0 15px rgba(34, 211, 238, 0.05), inset 0 1px 0 rgba(34, 211, 238, 0.1);
+}
+
+.recharts-cartesian-grid line {
+  stroke: #1e293b !important;
+}

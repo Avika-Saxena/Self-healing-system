@@ -1,8 +1,15 @@
-FROM node:22.13.0-alpine as base
+FROM node:22.13.0-alpine AS base
 
 WORKDIR /app
-COPY package*.json ./
+COPY package*.json package-lock.json ./
 RUN npm install
 COPY . .
-EXPOSE 3000
-CMD ["node", "server.js"]
+
+RUN npm run build
+
+FROM nginx:alpine
+
+COPY --from=base /app/dist /usr/share/nginx/html
+
+EXPOSE 80
+CMD ["nginx", "-g", "daemon off;"]

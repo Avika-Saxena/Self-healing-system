@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: self-healing-deployment
+  name: self-healing-deployment-backend
   namespace: self-healing-system-namespace
 spec:
   replicas: 3
@@ -16,5 +16,11 @@ spec:
       containers:
       - name: self-healing-system-backend
         image: avikasaxenapvt/self-healing-system-backend:latest
+        imagePullPolicy: Always
         ports:
         - containerPort: 3000
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 1
+      maxSurge: 1
