@@ -10,5 +10,9 @@ app.get('/health', (req, res) => {
   res.send('Health check passed!');
 });
 
+app.get('/ready', (req, res) => {
+  res.send('Container is ready!');
+});
+
 app.listen(port, () => {  console.log(`Example app listening at http://localhost:${port}`);
 });
