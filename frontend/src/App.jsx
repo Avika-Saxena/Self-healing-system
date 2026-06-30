@@ -17,6 +17,7 @@ import {
   generateIncidentsData,
   generateHealthyNodesData,
 } from './data';
+import axios from 'axios';
 
 function getCurrentTime() {
   const now = new Date();
@@ -79,6 +80,23 @@ export default function App() {
   const [incidentsData, setIncidentsData] = useState(generateIncidentsData);
   const [lastSync, setLastSync] = useState(getCurrentTime());
   const eventIdRef = useRef(initialEvents.length + 1);
+  const [result, setResult] = useState(null);
+
+  useEffect(() => {
+    const fetchDeploymentData = async () => {
+      try {
+        const response = await axios.get('http://localhost:3000/deployment');
+        console.log
+        setResult(response.data);
+      } catch (error) {
+        console.error('Error fetching deployment data:', error);
+      }
+    };
+
+    fetchDeploymentData();
+  }, []);
+
+  console.log('Deployment Data:', result);
 
   const addEvent = useCallback((message, type) => {
     const newEvent = {
