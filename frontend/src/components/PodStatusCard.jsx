@@ -6,43 +6,67 @@ import {
   ClockCircleOutlined,
 } from '@ant-design/icons';
 
-export default function StatsCards({ sla, incidents, autoHealed, avgMttr }) {
+export default function PodStatusCard({ data }) {
+  if (!data) {
+    return <p>Loading pod summary data...</p>;
+  }
+  console.log(data);
+  const { totalPods, runningPods, healthyPods, unhealthyPods, restartedPods, destroyedPods } = data;
+
   const cards = [
     {
-      label: 'SYSTEM SLA',
-      value: `${sla.toFixed(1)}%`,
-      sub: 'All nodes healthy',
+      label: 'TOTAL PODS',
+      value: totalPods.toString(),
+      sub: 'Total pods in the cluster',
       icon: <SafetyCertificateOutlined />,
       color: '#34d399',
       borderColor: 'border-emerald-500/20',
       iconBg: 'bg-emerald-500/10',
     },
     {
-      label: 'INCIDENTS',
-      value: incidents.toString(),
-      sub: 'Total detected',
-      icon: <WarningOutlined />,
-      color: incidents > 0 ? '#fbbf24' : '#94a3b8',
-      borderColor: incidents > 0 ? 'border-amber-500/20' : 'border-dark-400',
-      iconBg: incidents > 0 ? 'bg-amber-500/10' : 'bg-dark-500',
-    },
-    {
-      label: 'AUTO-HEALED',
-      value: autoHealed.toString(),
-      sub: 'Without human intervention',
+      label: 'RUNNING PODS',
+      value: runningPods.toString(),
+      sub: 'Currently running',
       icon: <ThunderboltOutlined />,
-      color: autoHealed > 0 ? '#22d3ee' : '#94a3b8',
-      borderColor: autoHealed > 0 ? 'border-cyan-500/20' : 'border-dark-400',
-      iconBg: autoHealed > 0 ? 'bg-cyan-500/10' : 'bg-dark-500',
+      color: '#22d3ee',
+      borderColor: 'border-cyan-500/20',
+      iconBg: 'bg-cyan-500/10',
     },
     {
-      label: 'AVG MTTR',
-      value: avgMttr,
-      sub: 'Mean time to recovery',
+      label: 'HEALTHY PODS',
+      value: healthyPods.toString(),
+      sub: 'Operational status',
+      icon: <SafetyCertificateOutlined />,
+      color: '#34d399',
+      borderColor: 'border-emerald-500/20',
+      iconBg: 'bg-emerald-500/10',
+    },
+    {
+      label: 'UNHEALTHY PODS',
+      value: unhealthyPods.toString(),
+      sub: 'Non-operational status',
+      icon: <WarningOutlined />,
+      color: '#fbbf24',
+      borderColor: 'border-amber-500/20',
+      iconBg: 'bg-amber-500/10',
+    },
+    {
+      label: 'RESTARTED PODS',
+      value: restartedPods.toString(),
+      sub: 'Recently restarted',
+      icon: <ThunderboltOutlined />,
+      color: '#f59e0b',
+      borderColor: 'border-amber-500/20',
+      iconBg: 'bg-amber-500/10',
+    },
+    {
+      label: 'DESTROYED PODS',
+      value: destroyedPods.toString(),
+      sub: 'Removed from cluster',
       icon: <ClockCircleOutlined />,
-      color: '#c084fc',
-      borderColor: 'border-dark-400',
-      iconBg: 'bg-purple-500/10',
+      color: '#ef4444',
+      borderColor: 'border-red-500/20',
+      iconBg: 'bg-red-500/10',
     },
   ];
 
@@ -76,4 +100,4 @@ export default function StatsCards({ sla, incidents, autoHealed, avgMttr }) {
       ))}
     </Row>
   );
-}
+};

@@ -1,7 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { ConfigProvider, theme, Row, Col } from 'antd';
 import Header from './components/Header';
-import StatsCards from './components/StatsCards';
 import FailureSimulator from './components/FailureSimulator';
 import LatencyChart from './components/LatencyChart';
 import NodeStatusChart from './components/NodeStatusChart';
@@ -9,6 +8,7 @@ import IncidentsChart from './components/IncidentsChart';
 import HealthyNodesChart from './components/HealthyNodesChart';
 import ServicesGrid from './components/ServicesGrid';
 import EventStream from './components/EventStream';
+import PodStatusCard from './components/PodStatusCard';
 import {
   initialServices,
   initialEvents,
@@ -17,7 +17,7 @@ import {
   generateIncidentsData,
   generateHealthyNodesData,
 } from './data';
-import axios from 'axios';
+import { getPodsSummary, getServicesSummary } from './routes/index';
 
 function getCurrentTime() {
   const now = new Date();
@@ -80,23 +80,26 @@ export default function App() {
   const [incidentsData, setIncidentsData] = useState(generateIncidentsData);
   const [lastSync, setLastSync] = useState(getCurrentTime());
   const eventIdRef = useRef(initialEvents.length + 1);
-  const [result, setResult] = useState(null);
+  const [podSummary, setPodSummary] = useState(null);
+  const [serviceSummary, setServiceSummary] = useState(null);
 
   useEffect(() => {
-    const fetchDeploymentData = async () => {
+    const fetchSummaryData = async () => {
       try {
-        const response = await axios.get('http://localhost:3000/deployment');
-        console.log
-        setResult(response.data);
+        console.log('Fetching pods summary data...');
+        const response = await getPodsSummary();
+        console.log('Fetching Services summary data...');
+        const servicesResponse = await getServicesSummary();
+        console.log('Services summary data:', servicesResponse);
+        setPodSummary(response);
+        setServiceSummary(servicesResponse);
       } catch (error) {
-        console.error('Error fetching deployment data:', error);
+        console.error('Error fetching pods summary data:', error);
       }
     };
 
-    fetchDeploymentData();
+    fetchSummaryData();
   }, []);
-
-  console.log('Deployment Data:', result);
 
   const addEvent = useCallback((message, type) => {
     const newEvent = {
@@ -119,12 +122,12 @@ export default function App() {
           prev.map((s) =>
             s.id === service.id
               ? {
-                  ...s,
-                  status: 'Healthy',
-                  cpu: Math.floor(Math.random() * 30) + 10,
-                  mem: Math.floor(Math.random() * 40) + 15,
-                  latency: `${Math.floor(Math.random() * 40) + 5}ms`,
-                }
+                ...s,
+                status: 'Healthy',
+                cpu: Math.floor(Math.random() * 30) + 10,
+                mem: Math.floor(Math.random() * 40) + 15,
+                latency: `${Math.floor(Math.random() * 40) + 5}ms`,
+              }
               : s
           )
         );
@@ -229,44 +232,42 @@ export default function App() {
         <Header agentOnline={true} lastSync={lastSync} />
 
         <main className="max-w-[1400px] mx-auto px-4 sm:px-6 py-6 space-y-6">
-          {/* Stats Cards */}
-          <StatsCards sla={sla} incidents={incidents} autoHealed={autoHealed} avgMttr={avgMttr} />
+          <PodStatusCard data={podSummary} />
 
           {/* Failure Simulator */}
-          <FailureSimulator
+          {/*<FailureSimulator
             onInjectFailure={handleInjectFailure}
             syntheticLoad={syntheticLoad}
             onLoadChange={setSyntheticLoad}
-          />
+          />*/}
 
           {/* Charts Row 1 */}
-          <Row gutter={[24, 24]}>
+          {/*<Row gutter={[24, 24]}>
             <Col xs={24} lg={15}>
               <LatencyChart data={latencyData} />
             </Col>
             <Col xs={24} lg={9}>
               <NodeStatusChart data={nodeStatusData} />
             </Col>
-          </Row>
+          </Row>*/}
 
           {/* Charts Row 2 */}
-          <Row gutter={[24, 24]}>
+          {/*<Row gutter={[24, 24]}>
             <Col xs={24} lg={12}>
               <IncidentsChart data={incidentsData} />
             </Col>
             <Col xs={24} lg={12}>
               <HealthyNodesChart data={healthyNodesData} totalNodes={totalCount} />
             </Col>
-          </Row>
-
+          </Row> */}
           {/* Services + Event Stream */}
           <Row gutter={[24, 24]}>
             <Col xs={24} lg={15}>
-              <ServicesGrid services={services} onCrash={handleCrashService} />
+              <ServicesGrid services={serviceSummary} onCrash={handleCrashService} />
             </Col>
-            <Col xs={24} lg={9}>
+            {/*<Col xs={24} lg={9}>
               <EventStream events={events} />
-            </Col>
+            </Col>*/}
           </Row>
         </main>
 

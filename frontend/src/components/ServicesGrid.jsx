@@ -47,7 +47,52 @@ function MetricBar({ label, value, defaultColor }) {
   );
 }
 
+function StatusBadge({ label, value }) {
+  const getStyles = () => {
+    switch (label.toLowerCase()) {
+      case "healthy":
+        return value
+          ? "bg-green-500/20 text-green-400 border-green-500/30"
+          : "bg-red-500/20 text-red-400 border-red-500/30";
+
+      case "autoscale":
+        return value
+          ? "bg-purple-500/20 text-purple-400 border-purple-500/30"
+          : "bg-slate-500/20 text-slate-400 border-slate-500/30";
+
+      case "replicas":
+        return "bg-cyan-500/20 text-cyan-400 border-cyan-500/30";
+
+      default:
+        return "bg-slate-500/20 text-slate-400 border-slate-500/30";
+    }
+  };
+
+  return (
+    <div className="flex items-center justify-between text-sm">
+      <span className="text-slate-400 capitalize">{label}</span>
+
+      <span
+        className={`px-2 py-1 rounded-md border text-xs font-semibold ${getStyles()}`}
+      >
+        {label === "replicas"
+          ? value
+          : value
+            ? "Yes"
+            : "No"}
+      </span>
+    </div>
+  );
+}
+
 export default function ServicesGrid({ services, onCrash }) {
+  if (!services || services.length === 0) {
+    return (
+      <div className="glass-card glow-border rounded-xl p-5 border border-dark-400 flex items-center justify-center h-full">
+        <p className="text-slate-500 text-sm m-0">No services available</p>
+      </div>
+    );
+  }
   return (
     <div className="glass-card glow-border rounded-xl p-5 border border-dark-400">
       <div className="mb-4">
@@ -55,18 +100,17 @@ export default function ServicesGrid({ services, onCrash }) {
         <p className="text-[11px] text-slate-500 m-0">Click any service to simulate a crash</p>
       </div>
       <Row gutter={[12, 12]}>
-        {services.map((service) => {
+        {services?.services.map((service) => {
           const statusConfig = getStatusConfig(service.status);
           return (
             <Col xs={24} md={12} key={service.id}>
               <div
-                className={`rounded-lg border transition-all duration-300 p-4 ${
-                  service.status === 'Down'
-                    ? 'border-red-500/30 bg-red-500/5'
-                    : service.status === 'Healing'
+                className={`rounded-lg border transition-all duration-300 p-4 ${service.status === 'Down'
+                  ? 'border-red-500/30 bg-red-500/5'
+                  : service.status === 'Healing'
                     ? 'border-amber-500/30 bg-amber-500/5'
                     : 'border-dark-300 bg-dark-700/50 hover:border-dark-200'
-                }`}
+                  }`}
               >
                 <div className="flex items-center justify-between mb-3">
                   <div className="flex items-center gap-2">
@@ -89,15 +133,30 @@ export default function ServicesGrid({ services, onCrash }) {
                     icon={<CloseCircleOutlined />}
                     onClick={() => onCrash(service.id)}
                     disabled={service.status !== 'Healthy'}
-                    className={`!text-[10px] !font-bold !uppercase !tracking-wider !rounded-md ${
-                      service.status === 'Healthy'
-                        ? '!bg-red-500/10 !text-red-400 !border-red-500/20 hover:!bg-red-500/20 hover:!border-red-500/40'
-                        : '!bg-dark-500 !text-slate-600 !border-dark-400 !cursor-not-allowed'
-                    }`}
+                    className={`!text-[10px] !font-bold !uppercase !tracking-wider !rounded-md ${service.status === 'Healthy'
+                      ? '!bg-red-500/10 !text-red-400 !border-red-500/20 hover:!bg-red-500/20 hover:!border-red-500/40'
+                      : '!bg-dark-500 !text-slate-600 !border-dark-400 !cursor-not-allowed'
+                      }`}
                     style={{ fontSize: 10 }}
                   >
                     Crash
                   </Button>
+                </div>
+                <div className="space-y-2">
+                  <StatusBadge
+                    label="healthy"
+                    value={service.healthy}
+                  />
+
+                  <StatusBadge
+                    label="autoscale"
+                    value={service.autoscale}
+                  />
+
+                  <StatusBadge
+                    label="replicas"
+                    value={service.replicas}
+                  />
                 </div>
                 <div className="space-y-1.5">
                   <MetricBar label="CPU" value={service.cpu} defaultColor="#06b6d4" />
