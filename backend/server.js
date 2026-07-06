@@ -2,6 +2,7 @@ const express = require('express');
 const app = express();
 const port = 3000;
 const { appsApi, coreApi } = require('./k8ApiCnfig');
+const { startAllWatchers, eventEmitter } = require('./EventWatcher');
 const cors = require('cors');
 
 app.use(cors());
@@ -9,6 +10,28 @@ app.use(cors());
 app.use((req, res, next) => {
   console.log(`${req.method} ${req.url}`);
   next();
+});
+
+startAllWatchers();
+
+app.get('/watch/stream', (req, res) => {
+  res.writeHead(200, {
+    'Content-Type': 'text/event-stream',
+    'Cache-Control': 'no-cache',
+    Connection: 'keep-alive',
+  });
+  res.flushHeaders();
+
+  const send = (data) => res.write(`data: ${JSON.stringify(data)}\n\n`);
+
+  const listener = (event) => send(event);
+  eventEmitter.on('k8s-event', listener);
+  const heartbeat = setInterval(() => res.write(':\n\n'), 15000);
+
+  req.on('close', () => {
+    eventEmitter.off('k8s-event', listener);
+    clearInterval(heartbeat);
+  });
 });
 
 app.get('/', (req, res) => {

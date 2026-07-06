@@ -18,6 +18,7 @@ import {
   generateHealthyNodesData,
 } from './data';
 import { getPodsSummary, getServicesSummary } from './routes/index';
+import { useLiveEvents } from './useLiveEvents';
 
 function getCurrentTime() {
   const now = new Date();
@@ -72,25 +73,22 @@ const darkTheme = {
 
 export default function App() {
   const [services, setServices] = useState(initialServices);
-  const [events, setEvents] = useState(initialEvents);
   const [syntheticLoad, setSyntheticLoad] = useState(1000);
   const [incidents, setIncidents] = useState(0);
   const [autoHealed, setAutoHealed] = useState(0);
   const [latencyData, setLatencyData] = useState(generateLatencyData);
   const [incidentsData, setIncidentsData] = useState(generateIncidentsData);
   const [lastSync, setLastSync] = useState(getCurrentTime());
-  const eventIdRef = useRef(initialEvents.length + 1);
   const [podSummary, setPodSummary] = useState(null);
   const [serviceSummary, setServiceSummary] = useState(null);
+
+  const events = useLiveEvents();
 
   useEffect(() => {
     const fetchSummaryData = async () => {
       try {
-        console.log('Fetching pods summary data...');
         const response = await getPodsSummary();
-        console.log('Fetching Services summary data...');
         const servicesResponse = await getServicesSummary();
-        console.log('Services summary data:', servicesResponse);
         setPodSummary(response);
         setServiceSummary(servicesResponse);
       } catch (error) {
@@ -99,16 +97,6 @@ export default function App() {
     };
 
     fetchSummaryData();
-  }, []);
-
-  const addEvent = useCallback((message, type) => {
-    const newEvent = {
-      id: eventIdRef.current++,
-      timestamp: getCurrentTime(),
-      message,
-      type,
-    };
-    setEvents((prev) => [newEvent, ...prev].slice(0, 50));
   }, []);
 
   // Heal services after delay
@@ -132,12 +120,11 @@ export default function App() {
           )
         );
         setAutoHealed((prev) => prev + 1);
-        addEvent(`✨ ${service.name} successfully recovered — service restored.`, 'success');
       }, 4000 + Math.random() * 3000);
     });
 
     return () => timers.forEach(clearTimeout);
-  }, [services, addEvent]);
+  }, [services]);
 
   // Transition Down → Healing after delay
   useEffect(() => {
@@ -151,12 +138,12 @@ export default function App() {
             s.id === service.id ? { ...s, status: 'Healing' } : s
           )
         );
-        addEvent(`🔄 Healing agent triggered for ${service.name} — recovery in progress...`, 'warning');
       }, 2000 + Math.random() * 1500);
     });
 
     return () => timers.forEach(clearTimeout);
-  }, [services, addEvent]);
+  }, [services]);
+  console.log('Events:', events, 'Services:', services, 'Pod Summary:', podSummary, 'Service Summary:', serviceSummary);
 
   // Refresh chart data periodically
   useEffect(() => {
@@ -189,7 +176,6 @@ export default function App() {
       const service = services.find((s) => s.id === serviceId);
       if (service) {
         setIncidents((prev) => prev + 1);
-        addEvent(`💥 ${service.name} crashed! Failure injected manually.`, 'error');
         setIncidentsData((prev) => {
           const updated = [...prev];
           const lastIdx = updated.length - 1;
@@ -201,21 +187,19 @@ export default function App() {
         });
       }
     },
-    [services, addEvent]
+    [services]
   );
 
   const handleInjectFailure = useCallback(
     (type) => {
       const healthyServices = services.filter((s) => s.status === 'Healthy');
       if (healthyServices.length === 0) {
-        addEvent('⚠️ No healthy services available to crash.', 'warning');
         return;
       }
       const target = healthyServices[Math.floor(Math.random() * healthyServices.length)];
-      addEvent(`🎯 Injecting ${type} failure into ${target.name}...`, 'warning');
       setTimeout(() => handleCrashService(target.id), 500);
     },
-    [services, handleCrashService, addEvent]
+    [services, handleCrashService]
   );
 
   const healthyCount = services.filter((s) => s.status === 'Healthy').length;
@@ -265,9 +249,9 @@ export default function App() {
             <Col xs={24} lg={15}>
               <ServicesGrid services={serviceSummary} onCrash={handleCrashService} />
             </Col>
-            {/*<Col xs={24} lg={9}>
+            <Col xs={24} lg={9}>
               <EventStream events={events} />
-            </Col>*/}
+            </Col>
           </Row>
         </main>
 
