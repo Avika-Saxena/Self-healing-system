@@ -2,17 +2,19 @@ import { Tag, Timeline } from 'antd';
 import { RadarChartOutlined } from '@ant-design/icons';
 
 function getTypeConfig(type) {
+  console.log(type)
   switch (type) {
     case 'info':
-      return { color: '#22d3ee', textClass: 'text-cyan-400', icon: 'ℹ️' };
+      return { color: '#22d3ee', bg: '#22rgba(34, 211, 238, 0.22)', textClass: 'text-cyan-400', icon: 'ℹ️' };
     case 'warning':
-      return { color: '#fbbf24', textClass: 'text-amber-400', icon: '⚠️' };
+      console.log('Warning event detected');
+      return { color: '#fbbf24', bg: '#fbbe2455', textClass: 'text-amber-400', icon: '⚠️' };
     case 'error':
-      return { color: '#ef4444', textClass: 'text-red-400', icon: '🔴' };
+      return { color: '#ef4444', bg: '#ef444447', textClass: 'text-red-400', icon: '🔴' };
     case 'success':
-      return { color: '#10b981', textClass: 'text-emerald-400', icon: '✅' };
+      return { color: '#10b981', bg: '#10b98145', textClass: 'text-emerald-400', icon: '✅' };
     default:
-      return { color: '#64748b', textClass: 'text-slate-400', icon: '📋' };
+      return { color: '#64748b', bg: '#64748b44', textClass: 'text-slate-400', icon: '📋' };
   }
 }
 
@@ -31,7 +33,8 @@ export default function EventStream({ events }) {
       <div className="max-h-[360px] overflow-y-auto pr-1">
         <Timeline
           items={events.map((event, index) => {
-            const config = getTypeConfig(event.type);
+            const config = getTypeConfig(event.eventType?.toLowerCase());
+            console.log(config)
             return {
               color: config.color,
               children: (
@@ -48,8 +51,31 @@ export default function EventStream({ events }) {
                     >
                       {event.timestamp}
                     </Tag>
+                    <Tag
+                      bordered={false}
+                      className="!text-[10px] !font-mono !px-1.5 !py-0 !m-0 !leading-5"
+                      style={{
+                        background: config.bg,
+                        color: config.color,
+                        borderRadius: 4,
+                      }}
+                    >
+                      {event.eventType}
+                    </Tag>
                     <span className="text-xs">{config.icon}</span>
                   </div>
+                  <Tag
+                      bordered={false}
+                      variant="filled"
+                      className="!text-[10px] !font-mono !px-1.5 !py-0 !m-0 !leading-5"
+                      style={{
+                        background: config.bg,
+                        color: config.color,
+                        borderRadius: 4,
+                      }}
+                    >
+                      {event.reason ? `Reason: ${event.reason}` : `Resource: ${event.resourceType} (${event.name})`}
+                    </Tag>
                   <p className={`text-xs font-mono leading-relaxed mt-1 mb-0 ${config.textClass}`}>
                     {event.message}
                   </p>

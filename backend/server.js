@@ -12,8 +12,6 @@ app.use((req, res, next) => {
   next();
 });
 
-startAllWatchers();
-
 app.get('/watch/stream', (req, res) => {
   res.writeHead(200, {
     'Content-Type': 'text/event-stream',
@@ -35,7 +33,7 @@ app.get('/watch/stream', (req, res) => {
 });
 
 app.get('/', (req, res) => {
-  res.send('Hello World!');
+  res.send('Hello World! changed');
 });
 
 app.get('/health', (req, res) => {
@@ -118,9 +116,20 @@ app.get('/pods/summary', async (req, res) => {
 
   } catch (err) {
     console.error(err);
-    res.status(500).json({
-      message: err.message,
+    // Cluster unreachable hai ya kuch aur issue — dono cases differentiate karo
+    console.error('Error details:', err);
+    const isClusterDown =
+      err.code === 'ECONNREFUSED' ||
+      err.code === 'ETIMEDOUT' ||
+      err.message?.includes('ENOTFOUND');
+
+    res.status(isClusterDown ? 503 : 500).json({
+      status: 'error',
+      message: isClusterDown
+        ? 'Kubernetes cluster is not reachable right now'
+        : 'Failed to fetch pod data',
     });
+
   }
 });
 
@@ -207,5 +216,6 @@ app.get('/services/summary', async (req, res) => {
 });
 
 app.listen(port, () => {
-  console.log(`Example app listening at http://localhost:${port}`);
+  console.log(`yes: Example app listening at http://localhost:${port}`);
+  startAllWatchers();
 });

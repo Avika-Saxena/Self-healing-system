@@ -14,24 +14,29 @@ spec:
         app: backend
     spec:
       containers:
-      - name: self-healing-system-backend
-        image: avikasaxenapvt/self-healing-system-backend:latest
-        # Health probes to check the health of the backend container
-        livenessProbe:
-          httpGet:
-            path: /health
-            port: 3000
-          initialDelaySeconds: 30
-          periodSeconds: 10
-        readinessProbe:
-          httpGet:
-            path: /ready
-            port: 3000
-          initialDelaySeconds: 5
-          periodSeconds: 5
-        imagePullPolicy: Always
-        ports:
-        - containerPort: 3000
+        - name: self-healing-system-backend
+          image: avikasaxenapvt/self-healing-backend:v2
+          # Health probes to check the health of the backend container
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 3000
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /ready
+              port: 3000
+            initialDelaySeconds: 5
+            periodSeconds: 5
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 3000
+          resources:
+            requests:
+              cpu: "100m"
+            limits:
+              cpu: "300m"
   strategy:
     type: RollingUpdate
     rollingUpdate:

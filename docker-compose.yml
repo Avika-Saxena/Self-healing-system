@@ -5,7 +5,7 @@ services:
     build:
       context: ./backend
       dockerfile: Dockerfile
-    container_name: self-healing-system-backend
+    container_name: backend
     ports:
       - "3000:3000"
     networks:
@@ -19,7 +19,7 @@ services:
     build:
       context: ./frontend
       dockerfile: Dockerfile
-    container_name: self-healing-system-frontend
+    container_name: frontend
     ports:
       - "5000:80"
     networks:

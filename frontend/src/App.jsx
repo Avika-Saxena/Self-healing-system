@@ -143,7 +143,22 @@ export default function App() {
 
     return () => timers.forEach(clearTimeout);
   }, [services]);
-  console.log('Events:', events, 'Services:', services, 'Pod Summary:', podSummary, 'Service Summary:', serviceSummary);
+
+  useEffect(() => {
+    const stimulateLoad = async () => {
+      try {
+        const scaling = await fetch(`http://localhost:3000/autoscaled?load=${syntheticLoad}`);
+        const data = await scaling.json();
+        if (data && data.services) {
+          setServices(data.services);
+        }
+      } catch (error) {
+        console.error('Error fetching autoscaled data:', error);
+      }
+    };
+
+    stimulateLoad();
+  }, [syntheticLoad]);
 
   // Refresh chart data periodically
   useEffect(() => {
@@ -219,11 +234,11 @@ export default function App() {
           <PodStatusCard data={podSummary} />
 
           {/* Failure Simulator */}
-          {/*<FailureSimulator
+          <FailureSimulator
             onInjectFailure={handleInjectFailure}
             syntheticLoad={syntheticLoad}
             onLoadChange={setSyntheticLoad}
-          />*/}
+          />
 
           {/* Charts Row 1 */}
           {/*<Row gutter={[24, 24]}>

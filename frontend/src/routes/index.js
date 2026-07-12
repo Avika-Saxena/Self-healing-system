@@ -1,5 +1,7 @@
 import axios from "axios";
 
+//http://<service-name>.<namespace>.svc.cluster.local:<port>
+//const BASE_URL = "http://backend-svc.self-healing-system-namespace.svc.cluster.local:80";
 const BASE_URL = "http://localhost:3000";
 
 const callApi = async (endpoint) => {

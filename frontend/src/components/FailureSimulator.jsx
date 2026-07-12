@@ -14,7 +14,6 @@ export default function FailureSimulator({ onInjectFailure, syntheticLoad, onLoa
 
   const failureTypes = [
     { icon: <CloudServerOutlined />, label: 'Service', type: 'service' },
-    { icon: <DatabaseOutlined />, label: 'Database', type: 'database' },
     { icon: <DashboardOutlined />, label: 'CPU', type: 'cpu' },
   ];
 
