@@ -35,14 +35,14 @@ jobs:
           password: ${{ env.DOCKER_PASSWORD }}
 
       - name: Start Docker build
-        run:
-          docker build -t {{ env.BACKEND_IMAGE_NAME }}:{{ steps.gen_img.outputs.gen_img }} ./backend
-          docker build -t {{ env.FRONTEND_IMAGE_NAME }}:{{ steps.gen_img.outputs.gen_img }} ./frontend
+        run: |
+          docker build -t ${{ env.BACKEND_IMAGE_NAME }}:${{ steps.gen_img.outputs.gen_img }} ./backend
+          docker build -t ${{ env.FRONTEND_IMAGE_NAME }}:${{ steps.gen_img.outputs.gen_img }} ./frontend
 
       - name: Push Docker image
-        run:
-          docker push {{ env.BACKEND_IMAGE_NAME }}:{{ steps.gen_img.outputs.gen_img }}
-          docker push {{ env.FRONTEND_IMAGE_NAME }}:{{ steps.gen_img.outputs.gen_img }}
+        run: |
+          docker push ${{ env.BACKEND_IMAGE_NAME }}:${{ steps.gen_img.outputs.gen_img }}
+          docker push ${{ env.FRONTEND_IMAGE_NAME }}:${{ steps.gen_img.outputs.gen_img }}
 
   load-image:
     needs: build-and-push
@@ -56,15 +56,15 @@ jobs:
 
       - name: Load image into Minikube
         run: |
-          minikube image load {{ env.BACKEND_IMAGE_NAME }}:{{ needs.build-and-push.outputs.gen_img }} -n {{ env.NAMESPACE }}
-          minikube image load {{ env.FRONTEND_IMAGE_NAME }}:{{ needs.build-and-push.outputs.gen_img }} -n {{ env.NAMESPACE }}
+          minikube image load ${{ env.BACKEND_IMAGE_NAME }}:${{ needs.build-and-push.outputs.gen_img }} -n {{ env.NAMESPACE }}
+          minikube image load ${{ env.FRONTEND_IMAGE_NAME }}:${{ needs.build-and-push.outputs.gen_img }} -n {{ env.NAMESPACE }}
 
       - name: Update Kubernetes Deployment
         run: |
-          kubectl set image deployment/self-healing-deployment-backend self-healing-system-backend={{ env.BACKEND_IMAGE_NAME }} -n {{ env.NAMESPACE }}
-          kubectl set image deployment/self-healing-deployment-frontend self-healing-system-frontend={{ env.FRONTEND_IMAGE_NAME }} -n {{ env.NAMESPACE }}
+          kubectl set image deployment/self-healing-deployment-backend self-healing-system-backend=${{ env.BACKEND_IMAGE_NAME }} -n ${{ env.NAMESPACE }}
+          kubectl set image deployment/self-healing-deployment-frontend self-healing-system-frontend=${{ env.FRONTEND_IMAGE_NAME }} -n ${{ env.NAMESPACE }}
 
       - name: Verify Deployment
         run: |
-          kubectl rollout status deployment/self-healing-deployment-backend -n {{ env.NAMESPACE }}
-          kubectl rollout status deployment/self-healing-deployment-frontend -n {{ env.NAMESPACE }}
+          kubectl rollout status deployment/self-healing-deployment-backend -n ${{ env.NAMESPACE }}
+          kubectl rollout status deployment/self-healing-deployment-frontend -n ${{ env.NAMESPACE }}
