@@ -25,7 +25,7 @@ jobs:
       - name: Generate Unique Image Name
         id: gen_img
         run: |
-          TAG=$(git rev-parse --short HEAD)-$(date-%H%M%S) /
+          TAG=$(git rev-parse --short HEAD)-$(date +%H%M%S) |
           echo "TAG=$TAG" >> $GITHUB_ENV
 
       - name: Login Docker Hub
