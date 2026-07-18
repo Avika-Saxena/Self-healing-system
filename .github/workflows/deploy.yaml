@@ -1,53 +1,70 @@
 name: Automate deployment to Kubernetes
 
+env:
+  DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+  DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+  BACKEND_IMAGE_NAME: ${{ secrets.DOCKER_USERNAME }}/self-healing-backend:v2
+  FRONTEND_IMAGE_NAME: ${{ secrets.DOCKER_USERNAME }}/self-healing-frontend:v2
+  NAMESPACE: self-healing-system-namespace
+
 on:
   push:
     branches:
       - main
 
 jobs:
-  # test: // will add beta/gama/alpha testing in future
-  deploy:
-    runs-on: ubuntu-latest
+  build-and-push:
+    runs-on: self-hosted
+
+    outputs:
+      gen_img: ${{ steps.gen_img.outputs.gen_img }}
     steps:
-      - name: Checkout code # pull latest updates from the repo
+      - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Login to Docker Hub
+      - name: Generate Unique Image Name
+        id: gen_img
+        run: /
+          TAG = $(git rev-parse --short HEAD) - $(date-%H%M%S) /
+          echo "TAG=$TAG" >> $GITHUB_ENV
+
+      - name: Login Docker Hub
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      - name: Build Backend
-        run: |
-          docker build -t avikasaxenapvt/self-healing-system-backend:latest ./backend
+      - name: Start Docker build
+        run:
+          docker build -t {{ env.BACKEND_IMAGE_NAME }}:{{ steps.gen_img.outputs.gen_img }} ./backend
+          docker build -t {{ env.FRONTEND_IMAGE_NAME }}:{{ steps.gen_img.outputs.gen_img }} ./frontend
 
-      - name: Push Backend
-        run: |
-          docker push avikasaxenapvt/self-healing-system-backend:latest
-      
-      - name: Build Frontend
-        run: |
-          docker build -t avikasaxenapvt/self-healing-system-frontend:latest ./frontend
+      - name: Push Docker image
+        run:
+          docker push {{ env.BACKEND_IMAGE_NAME }}:{{ steps.gen_img.outputs.gen_img }}
+          docker push {{ env.FRONTEND_IMAGE_NAME }}:{{ steps.gen_img.outputs.gen_img }}
 
-      - name: Push Frontend
-        run: |
-          docker push avikasaxenapvt/self-healing-system-frontend:latest
+  load-image:
+    needs: build-and-push
+    runs-on: self-hosted
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
 
-      #- name: Deploy via ssh
-      #  uses: appleboy/ssh-action@v0.1.5
-      #  with:
-      #    host: ${{ secrets.REMOTE_HOST }}
-      #    username: ${{ secrets.REMOTE_USER }}
-      #    key: ${{ secrets.REMOTE_KEY }}
-      #    port: ${{ secrets.REMOTE_PORT }}
-      #    script: |
-      #      cd /path/to/your/k8s/configs
-      #      git pull origin main
-      #      docker build -t your-dockerhub-username/self-healing-system-backend:latest ./backend
-      #      docker build -t your-dockerhub-username/self-healing-system-frontend:latest ./frontend
-      #      docker push your-dockerhub-username/self-healing-system-backend:latest
-      #      docker push your-dockerhub-username/self-healing-system-frontend:latest
-      #      kubectl apply -f K8s/frontend-deployment.yaml
-      #      kubectl apply -f K8s/backend-deployment.yaml 
+      - name: Confirm Minikube is running
+        run: minikube status || (echo "Minikube is not running — start it before this job can proceed" && exit 1)
+
+      - name: Load image into Minikube
+        run: |
+          minikube image load {{ env.BACKEND_IMAGE_NAME }}:{{ needs.build-and-push.outputs.gen_img }} -n {{ env.NAMESPACE }}
+          minikube image load {{ env.FRONTEND_IMAGE_NAME }}:{{ needs.build-and-push.outputs.gen_img }} -n {{ env.NAMESPACE }}
+
+      - name: Update Kubernetes Deployment
+        run: |
+          kubectl set image deployment/self-healing-deployment-backend self-healing-system-backend={{ env.BACKEND_IMAGE_NAME }} -n {{ env.NAMESPACE }}
+          kubectl set image deployment/self-healing-deployment-frontend self-healing-system-frontend={{ env.FRONTEND_IMAGE_NAME }} -n {{ env.NAMESPACE }}
+
+      - name: Verify Deployment
+        run: |
+          kubectl rollout status deployment/self-healing-deployment-backend -n {{ env.NAMESPACE }}
+          kubectl rollout status deployment/self-healing-deployment-frontend -n {{ env.NAMESPACE }}

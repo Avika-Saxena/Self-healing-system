@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
       - name: self-healing-system-frontend
-        image: avikasaxenapvt/self-healing-frontend:dev
+        image: avikasaxenapvt/self-healing-frontend:latest
         imagePullPolicy: Always
         ports:
         - containerPort: 5000

@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
         - name: self-healing-system-backend
-          image: avikasaxenapvt/self-healing-backend:v2
+          image: avikasaxenapvt/self-healing-backend:latest
           # Health probes to check the health of the backend container
           livenessProbe:
             httpGet:
@@ -35,8 +35,10 @@ spec:
           resources:
             requests:
               cpu: "100m"
+              memory: "128Mi"
             limits:
               cpu: "300m"
+              memory: "256Mi"
   strategy:
     type: RollingUpdate
     rollingUpdate:

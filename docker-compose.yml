@@ -6,6 +6,7 @@ services:
       context: ./backend
       dockerfile: Dockerfile
     container_name: backend
+    image: avikasaxenapvt/self-healing-backend:latest
     ports:
       - "3000:3000"
     networks:
@@ -20,6 +21,7 @@ services:
       context: ./frontend
       dockerfile: Dockerfile
     container_name: frontend
+    image: avikasaxenapvt/self-healing-frontend:latest
     ports:
       - "5000:80"
     networks:
