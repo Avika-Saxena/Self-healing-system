@@ -25,7 +25,7 @@ jobs:
       - name: Generate Unique Image Name
         id: set_tag
         run: |
-          TAG=$(git rev-parse --short HEAD 2>/dev/null || echo "build")-$(date +%H%M%S) |
+          TAG="$(git rev-parse --short HEAD 2>/dev/null || echo 'build')-$(date +'%H%M%S')" |
           echo "TAG=$TAG" >> $GITHUB_ENV
           echo "uniquetag=$TAG" >> $GITHUB_OUTPUT
 
