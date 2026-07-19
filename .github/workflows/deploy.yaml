@@ -53,51 +53,29 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Check and Manage Minikube
+      - name: Check versions
         run: |
-          if ! command -v minikube &> /dev/null; then
-            echo "Minikube is not installed. Installing now..."
-            curl -LO https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64
-            sudo install minikube-linux-amd64 /usr/local/bin/minikube
-            rm minikube-linux-amd64
-            echo "Minikube is installed, starting the service...."
-            minikube start --memory=3072mb
-          else
-            echo "Minikube is already installed. Checking status..."
-            if ! minikube status &> /dev/null; then
-              echo "Minikube is not running — start it before this job can proceed"
-              minikube start --memory=3072mb
-            fi
-            echo "Minikube is up and running!"
-          fi
+          docker --version
+          minikube version
+          minikube status
+          kubectl version --client
 
-      - name: Enable required add-ons
-        run: |
-          minikube addons enable ingress
-          minikube addons enable metrics-server
-  
       - name: Load image into Minikube
         run: |
           minikube image load ${{ env.BACKEND_IMAGE_NAME }}:${{ needs.build-and-push.outputs.uniquetag }}
           minikube image load ${{ env.FRONTEND_IMAGE_NAME }}:${{ needs.build-and-push.outputs.uniquetag }}
 
-      - name: Check and Manage Kubectl
-        run: |
-          if ! command -v kubectl &> /dev/null; then
-            echo "Kubectl is not installed. Installing now..."
-            curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
-            sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
-            rm kubectl
-          else
-            echo "Kubectl is already installed!"
-          fi
-
       - name: Update Kubernetes Deployment
         run: |
+          kubectl apply -f K8s/
           kubectl set image deployment/self-healing-deployment-backend self-healing-system-backend=${{ env.BACKEND_IMAGE_NAME }}:${{ needs.build-and-push.outputs.uniquetag }} -n ${{ env.NAMESPACE }}
           kubectl set image deployment/self-healing-deployment-frontend self-healing-system-frontend=${{ env.FRONTEND_IMAGE_NAME }}:${{ needs.build-and-push.outputs.uniquetag }} -n ${{ env.NAMESPACE }}
 
       - name: Verify Deployment
         run: |
-          kubectl rollout status deployment/self-healing-deployment-backend -n ${{ env.NAMESPACE }}
-          kubectl rollout status deployment/self-healing-deployment-frontend -n ${{ env.NAMESPACE }}
+          kubectl rollout status deployment/self-healing-deployment-backend \
+          --timeout=180s \
+          -n ${{ env.NAMESPACE }}
+          kubectl rollout status deployment/self-healing-deployment-frontend \
+          --timeout=180s \
+          -n ${{ env.NAMESPACE }}
