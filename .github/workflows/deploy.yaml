@@ -61,12 +61,12 @@ jobs:
             sudo install minikube-linux-amd64 /usr/local/bin/minikube
             rm minikube-linux-amd64
             echo "Minikube is installed, starting the service...."
-            minikube start
+            minikube start --memory=3072mb
           else
             echo "Minikube is already installed. Checking status..."
             if ! minikube status &> /dev/null; then
               echo "Minikube is not running — start it before this job can proceed"
-              minikube start
+              minikube start --memory=3072mb
             fi
             echo "Minikube is up and running!"
           fi
