@@ -52,9 +52,13 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Confirm Minikube is running
-        run: ${{ secrets.MINIKUBE_PATH }} status || (echo "Minikube is not running — start it before this job can proceed" && exit 1)
+      - name: Add Minikube to Path
+        run: echo "C:\minikube" >> $GITHUB_PATH
 
+      - name: Confirm Minikube is running
+        run: |
+          minikube status || (echo "Minikube is not running — start it before this job can proceed" && exit 1)
+  
       - name: Load image into Minikube
         run: |
           minikube image load ${{ env.BACKEND_IMAGE_NAME }}:${{ needs.build-and-push.outputs.uniquetag }} -n ${{ env.NAMESPACE }}
