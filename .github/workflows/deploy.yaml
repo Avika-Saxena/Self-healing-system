@@ -67,6 +67,8 @@ jobs:
 
       - name: Update Kubernetes Deployment
         run: |
+          kubectl apply -f K8s/namespace.yaml
+          kubectl get namespaces
           kubectl apply -f K8s/
           kubectl set image deployment/self-healing-deployment-backend self-healing-system-backend=${{ env.BACKEND_IMAGE_NAME }}:${{ needs.build-and-push.outputs.uniquetag }} -n ${{ env.NAMESPACE }}
           kubectl set image deployment/self-healing-deployment-frontend self-healing-system-frontend=${{ env.FRONTEND_IMAGE_NAME }}:${{ needs.build-and-push.outputs.uniquetag }} -n ${{ env.NAMESPACE }}
