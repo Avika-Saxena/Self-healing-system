@@ -4,6 +4,7 @@ metadata:
   name: self-healing-deployment-backend
   namespace: self-healing-system-namespace
 spec:
+  serviceAccountName: backend-sa
   replicas: 3
   selector:
     matchLabels:

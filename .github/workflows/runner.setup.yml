@@ -52,3 +52,13 @@ jobs:
           else
             echo "Kubectl is already installed!"
           fi
+
+      - name: check kubens availability on system
+        run: |
+          if ! command -v kubens &> /dev/null; then
+            echo "kubens is not installed. Installing now..."
+            sudo apt-get update
+            sudo apt-get install -y kubectx
+          else
+            echo "kubens is already installed!"
+          fi
