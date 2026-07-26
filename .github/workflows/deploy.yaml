@@ -81,3 +81,16 @@ jobs:
           kubectl rollout status deployment/self-healing-deployment-frontend \
           --timeout=180s \
           -n ${{ env.NAMESPACE }}
+
+      - name: Test Ingress
+        run: |
+          MINIKUBE_IP=$(minikube ip)
+          echo "$MINIKUBE_IP app.frontend app.backend" | sudo tee -a /etc/hosts
+
+          echo " Waiting for ingress to be ready..."
+          kubectl wait --for=condition=ready pod \
+            -l app.kubernetes.io/name=ingress-nginx \
+            -n ingress-nginx \
+            --timeout=120s
+          curl http://app.frontend -v
+          curl http://app.backend -v
