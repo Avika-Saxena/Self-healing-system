@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
         - name: self-healing-system-backend
-          image: avikasaxenapvt/self-healing-backend:latest
+          image: avikasaxenapvt/self-healing-backend:v2
           # Health probes to check the health of the backend container
           livenessProbe:
             httpGet:
